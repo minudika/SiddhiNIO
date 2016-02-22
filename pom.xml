@@ -43,16 +43,23 @@
             <artifactId>netty-all</artifactId>
             <version>4.0.31.Final</version>
         </dependency>
-        <dependency>
+       <!-- <dependency>
             <groupId>io.netty.wso2</groupId>
             <artifactId>netty-all</artifactId>
             <version>4.0.23.wso2v1</version>
-        </dependency>
-        <dependency>
+        </dependency>-->
+      <!--  <dependency>
             <groupId>io.netty.wso2</groupId>
             <artifactId>netty-all</artifactId>
             <version>4.0.23.wso2v1</version>
+        </dependency>-->
+
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+            <version>4.0</version>
         </dependency>
+
     </dependencies>
 
     <properties>
