@@ -64,7 +64,7 @@ public final class ObjectEchoClient {
 
                 ch.writeAndFlush("req");
                 System.err.println("requested..");
-                Thread.sleep(1000);
+                Thread.sleep(2000);
 
             }
 

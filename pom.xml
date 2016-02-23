@@ -106,8 +106,4 @@
 
     </dependencies>
 
-    <properties>
-        <siddhi.version>3.0.5-SNAPSHOT</siddhi.version>
-    </properties>
-
 </project>

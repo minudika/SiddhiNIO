@@ -11,6 +11,8 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
+import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.timestamp.SystemNanoTimeTimestampGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,8 @@ public class ObjectEchoClientHandler extends ChannelInboundHandlerAdapter {
     private static ExecutionPlanRuntime executionPlanRuntime;
     String inStreamDefinition;
     String query;
+    Runnable r;
+    Thread t;
 
 
     private final List<Integer> firstMessage;
@@ -43,8 +47,60 @@ public class ObjectEchoClientHandler extends ChannelInboundHandlerAdapter {
             firstMessage.add(Integer.valueOf(i));
         }
 
+        inStreamDefinition = "@config(async = 'true')define stream inputStream (ticker string, date string, time string, askPrice double);\n";
+        query = "from inputStream\n" +
+                "select ticker, avg(askPrice) as avg_price\n" +
+                "insert into outputStream\n";
+
+        executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+
+
+        inputHandler = executionPlanRuntime.getInputHandler("inputStream");
+        executionPlanRuntime.start();
+/*
+        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+
+            @Override
+            public void receive(org.wso2.siddhi.core.event.Event[] events) {
+                //EventPrinter.print(events);
+
+                for (org.wso2.siddhi.core.event.Event evt : events) {
+                    Object[] dt = evt.getData();
+                    // System.out.println(dt[0]);//log.info(dt[0]);
+                    //    log.error(dt[0]+" -> "+dt[1]);
+                    System.err.println(dt[0]+" -> "+dt[1]);
+                }
+            }
+        });*/
+
+       r = new Runnable() {
+            public void run() {
+                System.err.println("Thread started..");
+                executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+
+                    @Override
+                    public void receive(org.wso2.siddhi.core.event.Event[] events) {
+                        EventPrinter.print(events);
+
+                        for (org.wso2.siddhi.core.event.Event evt : events) {
+                            Object[] dt = evt.getData();
+                            // System.out.println(dt[0]);//log.info(dt[0]);
+                            //    log.error(dt[0]+" -> "+dt[1]);
+                            System.err.println(dt[0]+" -> "+dt[1]);
+                        }
+                    }
+                });
+
+            }
+        };
+
+        t = new Thread(r);
+        // Lets run Thread in background..
+        // Sometimes you need to run thread in background for your Timer application..
+       t.start(); // starts thread in background..
+
         /*inStreamDefinition = "@config(async = 'true')define stream inputStream (ticker string, date string, time string, askPrice float);\n";
-        query = "from inputStream#window.length(10)\n" +
+        query = "from inputStream#window.length(10)\n" +Object[] dt = evt.getData();
                 "select ticker, avg(askPrice) as avg_price\n" +
                 "insert into outputStream\n";
 
@@ -70,25 +126,7 @@ public class ObjectEchoClientHandler extends ChannelInboundHandlerAdapter {
 
         inputHandler = executionPlanRuntime.getInputHandler("inputStream");
         executionPlanRuntime.start();
-        System.err.println("channel registered..");*/
-    }
-
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws InterruptedException {
-        // Echo back the received object to the server.
-        ctx.write(msg);
-        System.err.println("received : "+msg);
-
-        inStreamDefinition = "@config(async = 'true')define stream inputStream (ticker string, date string, time string, askPrice float);\n";
-        query = "from inputStream#window.length(10)\n" +
-                "select ticker, avg(askPrice) as avg_price\n" +
-                "insert into outputStream\n";
-
-        executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
-
-
-        inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        System.err.println("channel registered..");
 
         executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
 
@@ -103,10 +141,31 @@ public class ObjectEchoClientHandler extends ChannelInboundHandlerAdapter {
                     System.err.println(dt[0]+" -> "+dt[1]);
                 }
             }
-        });
+        });*/
+    }
 
-        Object eventData = null;
-        inputHandler.send((Event)msg);
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws InterruptedException {
+        // Echo back the received object to the server.
+        ctx.write(msg);
+        System.err.println("received : "+msg);
+
+       /* inStreamDefinition = "@config(async = 'true')define stream inputStream (ticker string, date string, time string, askPrice float);\n";
+        query = "from inputStream#window.length(10)\n" +
+                "select ticker, avg(askPrice) as avg_price\n" +
+                "insert into outputStream\n";
+
+        executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+
+
+        inputHandler = executionPlanRuntime.getInputHandler("inputStream");
+        executionPlanRuntime.start();*/
+
+
+
+        //Object eventData = ((Object [])msg)[0];
+       // System.err.println(eventData.toString());
+        inputHandler.send((Object [])msg);
 
     }
 
