@@ -145,7 +145,7 @@ public class ObjectEchoClientHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws InterruptedException {
         // Echo back the received object to the server.
-        ctx.write(msg);
+        //ctx.write(msg);
         System.err.println("received : "+msg);
 
        /* inStreamDefinition = "@config(async = 'true')define stream inputStream (ticker string, date string, time string, askPrice float);\n";
